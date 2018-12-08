@@ -47,10 +47,6 @@ public class EmailController {
 
     @RequestMapping({"/", "/email"})
     public String getAll(@RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "size", defaultValue = "" + DEFAULT_PAGE_SIZE) int size, Model model) {
-        return getAllEmailsPaged(page, size, model);
-    }
-
-    private String getAllEmailsPaged(int page, int size, Model model) {
         if(page < 0 || size <= 0){
             return REDIRECT_EMAIL_LIST_VIEW;
         }

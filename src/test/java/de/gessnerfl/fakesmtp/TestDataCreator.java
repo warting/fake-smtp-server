@@ -1,81 +1,48 @@
 package de.gessnerfl.fakesmtp;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
-
-import javax.mail.MessagingException;
 
 public class TestDataCreator {
 
     private static final int NUMBER_OF_TEST_EMAILS = 5;
+    private static final String DEFAULT_FROM_ADDRESS = "sender@example.com";
+    private static final String DEFAULT_TO_ADDRESS = "receiver@exmaple.com";
+
+
+    private TestMailSender sender;
 
     public static void main(String[] args) {
+        var testDataCreator = new TestDataCreator(5025);
         for(var i = 0; i < NUMBER_OF_TEST_EMAILS; i++){
-            createEmail(i);
-            createHtmlEmail(i);
-            createMimeAlternativeEmail(i);
+            testDataCreator.createEmail(i);
+            testDataCreator.createHtmlEmail(i);
+            testDataCreator.createMimeAlternativeEmail(i);
         }
     }
 
-    private static void createEmail(int i) {
-        var message = new SimpleMailMessage();
-        message.setTo("receiver@exmaple.com");
-        message.setFrom("sender@example.com");
-        message.setSubject("Test-Plain-Mail " + i);
-        message.setText("This is the test mail number "+i);
-        getEmailSender().send(message);
+    private TestDataCreator(int port){
+        this.sender = new TestMailSender(port);
     }
 
-    private static void createHtmlEmail(int i){
-        try {
-            var sender = getEmailSender();
-
-            var message = sender.createMimeMessage();
-            var helper = new MimeMessageHelper(message);
-            helper.setTo("receiver@exmaple.com");
-            helper.setFrom("sender@example.com");
-            helper.setSubject("Test-Html-Mail " + i);
-            helper.setText("<html><head></head><body>This is the test mail number " + i + "</body>", true);
-
-            sender.send(message);
-        } catch (MessagingException e){
-            throw new RuntimeException("Failed to create mail", e);
-        }
+    private void createEmail(int i) {
+        var subject = "Test-Plain-Mail " + i;
+        var text = "This is the test mail number " + i;
+        sender.sendPlainTextMail(DEFAULT_FROM_ADDRESS, DEFAULT_TO_ADDRESS, subject, text);
     }
 
-    private static void createMimeAlternativeEmail(int i) {
-        try {
-            var sender = getEmailSender();
-
-            var message = sender.createMimeMessage();
-            var helper = new MimeMessageHelper(message, true);
-            helper.setTo("receiver@exmaple.com");
-            helper.setFrom("sender@example.com");
-            helper.setSubject("Test-Alternative-Mail " + i);
-            helper.setText("This is the test mail number" + i, "<html><head></head><body>This is the test mail number " + i + "</body>");
-            helper.addAttachment("app-icon.png", new ClassPathResource("/static/gfx/app-icon.png"));
-            helper.addAttachment("customizing.css", new ClassPathResource("/static/customizing.css"));
-            sender.send(message);
-        } catch (MessagingException e){
-            throw new RuntimeException("Failed to create mail", e);
-        }
+    private void createHtmlEmail(int i){
+        var subject = "Test-Html-Mail " + i;
+        var html = "<html><head></head><body>This is the test mail number " + i + "</body>";
+        sender.sendHtmlEmail(DEFAULT_FROM_ADDRESS, DEFAULT_TO_ADDRESS, subject, html);
     }
 
-    private static JavaMailSender getEmailSender() {
-        var mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("localhost");
-        mailSender.setPort(5025);
-
-        var props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "false");
-        props.put("mail.smtp.starttls.enable", "false");
-        props.put("mail.debug", "false");
-
-        return mailSender;
+    private void createMimeAlternativeEmail(int i) {
+        var subject = "Test-Html-Mail " + i;
+        var text = "This is the test mail number" + i;
+        var html = "<html><head></head><body>This is the test mail number " + i + "</body>";
+        var att1 = new TestMailSender.AttachmentSource("app-icon.png", new ClassPathResource("/static/gfx/app-icon.png"));
+        var att2 = new TestMailSender.AttachmentSource("customizing.css", new ClassPathResource("/static/customizing.css"));
+        sender.sendMimeAlternativeEmail(DEFAULT_FROM_ADDRESS, DEFAULT_TO_ADDRESS, subject, text, html, att1, att2);
     }
 
 }
