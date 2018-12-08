@@ -56,7 +56,7 @@ public class FakeSmtpServerWithAuthenticationIntegrationTest {
     }
 
     @Test
-    public void shouldFailToReceiveEmailWhenNoLoginIsProvided(){
+    public void shouldReceiveMailWhenNoAuthenticationIsProvidedAsServerIsNotForcingAuthentication(){
         var subject = "subject integration test with authentication";
         var content = "content plain text integration test with authentication";
         var testMailSender = new TestMailSender(fakeSmtpConfigurationProperties.getPort());
