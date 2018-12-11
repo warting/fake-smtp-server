@@ -21,11 +21,11 @@ public class TestMailSender {
     public static TestMailSender createSpring(int port, String user, String password) {
         Objects.requireNonNull(user, "User missing");
         Objects.requireNonNull(password, "Password missing");
-        return new TestMailSender(NativeJavaMailSender.createFor(port, user, password));
+        return new TestMailSender(SpringJavaMailSender.createFor(port, user, password));
     }
 
     public static TestMailSender createNative(int port) {
-        return new TestMailSender(SpringJavaMailSender.createFor(port));
+        return new TestMailSender(NativeJavaMailSender.createFor(port));
     }
 
     public static TestMailSender createNative(int port, String user, String password) {
@@ -156,10 +156,10 @@ public class TestMailSender {
             properties.put("mail.smtp.port", port);
             properties.put("mail.debug", "false");
 
-            //properties.put("mail.smtp.starttls.enable","true");
+            // properties.put("mail.smtp.starttls.enable","true");
 
-            //properties.put("mail.smtp.socketFactory.port", port);
-            //properties.put("mail.smtp.socketFactory.class",  "javax.net.ssl.SSLSocketFactory");
+            // properties.put("mail.smtp.socketFactory.port", port);
+            // properties.put("mail.smtp.socketFactory.class",  "javax.net.ssl.SSLSocketFactory");
             return properties;
         }
 

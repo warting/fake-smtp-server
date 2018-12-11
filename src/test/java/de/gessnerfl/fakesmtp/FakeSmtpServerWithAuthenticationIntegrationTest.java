@@ -47,7 +47,7 @@ public class FakeSmtpServerWithAuthenticationIntegrationTest {
         assertEquals(content, emails.get(0).getPlainContent().get().getData());
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test(expected = MailAuthenticationException.class)
     public void shouldFailToReceiveEmailWhenLoginIsNotValidThroughSpringSender() throws Exception {
         var subject = "subject integration test with authentication";
         var content = "content plain text integration test with authentication";
