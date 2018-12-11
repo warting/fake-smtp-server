@@ -37,11 +37,11 @@ public class FakeSmtpServerIntegrationTest {
 
     @Before
     public void init() throws InterruptedException {
-        testMailSender = new TestMailSender(fakeSmtpConfigurationProperties.getPort());
+        testMailSender = TestMailSender.createSpring(fakeSmtpConfigurationProperties.getPort());
     }
 
     @Test
-    public void shouldSuccessfullyReceivePlainTextEmail(){
+    public void shouldSuccessfullyReceivePlainTextEmail() throws Exception {
         var subject = "subject integration test";
         var content = "content plain text integration test";
         testMailSender.sendPlainTextMail(DEFAULT_FROM_ADDRESS, DEFAULT_TO_ADDRESS, subject, content);
