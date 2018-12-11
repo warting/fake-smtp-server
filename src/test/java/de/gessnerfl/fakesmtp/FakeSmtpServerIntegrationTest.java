@@ -36,7 +36,7 @@ public class FakeSmtpServerIntegrationTest {
     private TestMailSender testMailSender;
 
     @Before
-    public void init() throws InterruptedException {
+    public void init() {
         testMailSender = TestMailSender.createSpring(fakeSmtpConfigurationProperties.getPort());
     }
 
