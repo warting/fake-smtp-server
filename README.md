@@ -25,7 +25,7 @@ and docker documentation (https://docs.docker.com/engine/reference/run/#env-envi
 
 # Running Fake SMTP Server locally
 
-**Note:** You need Java 11 installed to run Fake SMTP Server. 
+**Note:** You need Java 17 installed to run Fake SMTP Server. 
 
 ## Run from released JAR files
 
@@ -44,59 +44,125 @@ In order to run this application locally from sources, execute:
 
     ./gradlew bootRun
 
-Afterwards, the web interface is be availabe under http://localhost:5080.
+Afterwards, the web interface is be availabe under http://localhost:8080.
 
 # Configuration
 
 As the application is based on Spring Boot the same rules applies to the configuration as described in the Spring Boot 
 Documentation (http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-external-config).
 
-The configuration file application.properties can be placed next to the application jar, in a sub-directory config or 
+The configuration file application.yaml can be placed next to the application jar, in a sub-directory config or 
 in any other location when specifying the location with the parameter `-Dspring.config.location=<path to config file>`.
 
 The following paragraphs describe the application specific resp. pre-defined configuration parameters.
 
 ## Fake SMTP Server
 The following snippet shows the configuration of a fake smtp server with its default values.
-    
-    #The SMTP Server Port used by the Fake SMTP Server
-    fakesmtp.port=5025
-    
-    #The binding address of the Fake SMTP Server; Bound to all interfaces by default / no value
-    fakesmtp.bindAddress
-    
-    #The maximum number of emails which should be stored in the database; Defualts to 100
-    fakesmtp.persistence.maxNumberEmails=100  
-    
-    #List of sender email addresses to ignore, as a comma-separated list of regex expressions.
-    fakesmtp.filteredEmailRegexList=john@doe\\.com,.*@google\\.com ; empty by default
-    
-    #When set to true emails will be forwarded to a configured target email system. Therefore
-    #the spring boot mail system needs to be configured. See also 
-    https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-email
-    fakesmtp.forwardEmails=false
+
+```yaml
+fakesmtp:
+  #The SMTP Server Port used by the Fake SMTP Server
+  port: 8025
+
+  #The binding address of the Fake SMTP Server; Bound to all interfaces by default / no value
+  bindAddress: 127.0.0.1
+
+  persistence:
+    #The maximum number of emails which should be stored in the database; Defaults to 100
+    maxNumberEmails: 100
+
+  #List of recipient addresses which should be blocked/rejected
+  blockedRecipientAddresses:
+    - blocked@example.com
+    - foo@eample.com
+
+  #List of sender email addresses to ignore, as a comma-separated list of regex expressions.
+  filteredEmailRegexList: john@doe\\.com,.*@google\\.com ; empty by default
+
+  #Optional configuration option to specify the maximum allowed message size. The size can be 
+  #defined using Spring Boot DataSize value type - https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-conversion-datasize.
+  #Default: no limit
+  maxMessageSize: 10MB
+
+  #Configure if TLS is required to connect to the SMTP server. Defaults to false
+  requireTLS: false
+
+  #When set to true emails will be forwarded to a configured target email system. Therefore
+  #the spring boot mail system needs to be configured. See also 
+  # https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-email
+  forwardEmails: false
+```
     
 ### Authentication
 Optionally authentication can be turned on. Configuring authentication does not mean the authentication is enforced. It
 just allows you to test PLAIN and LOGIN SMTP Authentication against the server instance.
 
+```yaml
+fakesmtp:
+  authentication:
     #Username of the client to be authenticated
-    fakesmtp.authentication.username
-    
+    username: myuser
     #Password of the client to be authenticated
-    fakesmtp.authentication.password          
+    password: mysecretpassword 
+```
+           
 
 ## Web UI
 The following snippet shows the pre-defined web application configuration
 
-    #Port of the web interface
-    server.port=5080     
+```yaml
+#Port of the web interface
+server:
+  port: 8080
+
+#Port of the http management api
+management:
+  server:
+    port: 8081 
+```
     
-    #Port of the http management api
-    management.server.port=5081 
 
 ## REST API
 
 Documentation of exposed services is available at:
     
-    localhost:5080/swagger-ui.html
+    localhost:8080/swagger-ui.html
+
+## Developpment Environment
+
+This requires to have docker installed.
+If you need to implement a new feature, you will probably need an correct JDK version setup in an environement.
+
+```sh
+sh/dev
+```
+
+Then, in the dev container started by the command above, you can use various commands. 
+The following commands should be the most common ones:
+```bash
+sh gradlew test
+sh gradlew test --tests '*EmailRepositoryIntegration*' --info
+sh gradlew build
+```
+
+Run UI & Backend tests
+```bash
+sh/test
+```
+
+Build UI & Backend
+```bash
+sh/build
+```
+
+Run app (UI & Backend)
+```bash
+sh/run
+```
+
+### Build & Push a new development docker image
+
+To update/change the development image, update the `dev.Dockerfile`, dont forget to change the version in the `dev-image-tag` file and edit the registery if needed.
+```bash
+sh/push-dev-image
+```

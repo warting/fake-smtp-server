@@ -1,0 +1,27 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  dependency_submission:
+    name: Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: 17
+
+      - name: Run snapshot action
+        uses: mikepenz/gradle-dependency-submission@v0.8.6
+        with:
+          use-gradlew: true
